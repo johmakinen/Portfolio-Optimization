@@ -21,15 +21,16 @@
             if (response.ok) {
                 let chartJson = await response.json();
                 if (response.ok) {
-                    response = await fetch("/callback/getInfo?stock=" + Stock);
-                    let infoJson = await response.json();
-                    info(infoJson);
-                    Plotly.newPlot('chart', chartJson, {});
+                    let response = await fetch("/callback/getTable");
+                    let tableJson = await response.json();
+                    Plotly.newPlot('chart_fig', chartJson, {});
+                    Plotly.newPlot('chart_tbl', tableJson, {});
+
                 } else {
-                    alert("HTTP-Error: " + response.status + "on getInfo");
+                    alert("HTTP-Error: " + response.status + " on getTable");
                 }
             } else {
-                alert("HTTP-Error: " + response.status + "on getStock");
+                alert("HTTP-Error: " + response.status + " on getStock");
             }
         }
         function info(json) {
@@ -49,7 +50,7 @@
     <div class="container">
         <div class="row">
             <div class="col text-light bg-dark" style="margin:20px 0px 20px 0px">
-                <h1 style="padding:20px 0px 20px 0px">Stock movements demonstrator</h1>
+                <h1 style="padding:20px 0px 20px 0px">Optimal portfolio tool</h1>
             </div>
 
         </div>
@@ -105,18 +106,15 @@
             <div class="w-100" style="padding:10px;text-align:right;font-size: small;"><i>Note: not all intervals are
                     valid for all periods</i></div>
 
-            <div class="col-3">
-                <p><b>Stock info</b></p>
-                <p>Symbol: <span id="symbol">N/A</span></p>
-                <p>Day High: <span id="dayHigh">N/A</span></p>
-                <p>Day Low: <span id="dayLow">N/A</span></p>
-
-
+            <div class="col-12">
+                <div id="chart_fig" class="chart" style="height: 700px;border: 1px solid; 
+                box-shadow: 5px 5px 5px #888888;">
+                </div>
             </div>
-            <div class="col-9">
-                <h2 id="companyName"></h2>
-                <div id="chart" class="chart" style="height: 300px;border: 1px solid; 
-                    box-shadow: 5px 5px 5px #888888;">
+
+            <div class="col-12">
+                <div id="chart_tbl" class="chart" style="height: 200px;border: 1px solid; 
+                box-shadow: 5px 5px 5px #888888;">
                 </div>
             </div>
             <div class="col-12" style="font-size:smaller;padding:10px;text-align: right;">

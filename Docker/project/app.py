@@ -7,6 +7,7 @@ import json
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 import datetime as dt
 import pandas_datareader as pdr
@@ -16,22 +17,22 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-
     return render_template('index.html')
 
 
 @app.route('/callback/<endpoint>')
 def cb(endpoint):
+
     if endpoint == "getStock":
         data = fetch_data()
-        results = simulate_protfolios(data)
-
-        # gm(request.args.get('data'), request.args.get('period'), request.args.get('interval'))
-        return create_plot(results)
-    elif endpoint == "getInfo":
-        stock = request.args.get('data')
-        st = {"test": 2}
-        return json.dumps(st)
+        results = simulate_portfolios(data)
+        json_fig = show_results(results)[0]
+        return json_fig
+    elif endpoint == "getTable":
+        data = fetch_data()
+        results = simulate_portfolios(data)
+        json_tbl = show_results(results)[1]
+        return json_tbl
     else:
         return "Bad endpoint", 400
 
@@ -41,7 +42,7 @@ def cb(endpoint):
 # end_date = "2021-11-28"
 
 
-def fetch_data(tickers=["TSLA", "AAPL", "MSFT"], start_date=dt.datetime.today()-dt.timedelta(weeks=104), end_date=dt.datetime.today()):
+def fetch_data(tickers=["TSLA", "AAPL", "MSFT"], start_date=dt.datetime.today()-dt.timedelta(weeks=25), end_date=dt.datetime.today()):
     for i in range(len(tickers)):
 
         if i == 0:
@@ -54,7 +55,7 @@ def fetch_data(tickers=["TSLA", "AAPL", "MSFT"], start_date=dt.datetime.today()-
     return res
 
 
-def simulate_protfolios(df, n_portfolios=20000):
+def simulate_portfolios(df, n_portfolios=10000):
     # Daily and annual returns
     returns_daily = df.set_index("Date").pct_change()
     returns_annual = returns_daily.mean() * 250
@@ -94,8 +95,8 @@ def simulate_protfolios(df, n_portfolios=20000):
     return res
 
 
-def create_plot(res):
-    # Find the minimum volatiliy and maximum sharpe portfolios
+def show_results(res):
+
     min_volatility_idx = res['Volatility'].argmin()
     max_sharpe_idx = res['Sharpe Ratio'].argmax()
 
@@ -103,10 +104,23 @@ def create_plot(res):
     sharpe_portfolio = res.loc[max_sharpe_idx]
     min_variance_port = res.loc[min_volatility_idx]
 
+    min_variance_port_frame = min_variance_port.to_frame(
+        name="Minimum volatility portfolio")
+    sharpe_portfolio_frame = sharpe_portfolio.to_frame(
+        name="Maximum Sharpe portfolio")
+    opt_portfolios = min_variance_port_frame.T.append(sharpe_portfolio_frame.T)
+
+    opt_portfolios = min_variance_port_frame.T.append(sharpe_portfolio_frame.T)
+    # TABLE
+    fig_tbl = ff.create_table(opt_portfolios.round(
+        2).reset_index().rename(columns={'index': "Portfolio Type"}))
+    fig_tbl.update_layout(width=1294, height=200)
+    # SCATTERPLOT
     fig = px.scatter(res[["Returns", "Volatility", "Sharpe Ratio"]],
                      x="Volatility", y="Returns",
                      hover_data=("Returns", "Volatility"), template="seaborn",
-                     color="Sharpe Ratio", color_continuous_scale='viridis')
+                     color="Sharpe Ratio", color_continuous_scale='viridis',
+                     width=1250, height=700)
 
     fig.update_layout(
         xaxis_range=[min(res["Volatility"])-0.1, max(res["Volatility"])+0.1])
@@ -138,14 +152,14 @@ def create_plot(res):
     fig.update_layout(
         title={
             'text': "Simulated portfolios and the efficient frontier",
-            'y': 0.9,
+            'y': 0.95,
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top'})
 
-    # Create a JSON representation of the graph
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return graphJSON
+    graphJSON_fig = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON_tbl = json.dumps(fig_tbl, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON_fig, graphJSON_tbl
 
 
 # @app.route('/')
@@ -167,7 +181,6 @@ def create_plot(res):
 #         3).tolist(), res["Returns"].round(3).tolist())
 # # render_template("index.html",  tables=[var_html.T.append(sharpe_html.T).to_html(classes='data')], header="true")
 #     return render_template("index.html", scatter_data=scatter_data)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0')
