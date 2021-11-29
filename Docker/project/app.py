@@ -1,17 +1,39 @@
-from flask import Flask, redirect, render_template, url_for, Response
+from flask import Flask, render_template, request
 
 import numpy as np
 import pandas as pd
-import io
 
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+import json
+import plotly
+import plotly.express as px
+import plotly.graph_objects as go
 
 import datetime as dt
 import pandas_datareader as pdr
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+
+    return render_template('index.html')
+
+
+@app.route('/callback/<endpoint>')
+def cb(endpoint):
+    if endpoint == "getStock":
+        data = fetch_data()
+        results = simulate_protfolios(data)
+
+        # gm(request.args.get('data'), request.args.get('period'), request.args.get('interval'))
+        return create_plot(results)
+    elif endpoint == "getInfo":
+        stock = request.args.get('data')
+        st = {"test": 2}
+        return json.dumps(st)
+    else:
+        return "Bad endpoint", 400
 
 # Test automating the asset data retrieval using yfinance library
 # tickers = ['AAL','AAPL','BAC','F','PFE','MSFT']
@@ -72,15 +94,7 @@ def simulate_protfolios(df, n_portfolios=20000):
     return res
 
 
-def plot_results(res):
-    # Known bug from 2015 onwards, X axis does not show up with pandas+matplotlib when using colourbar
-    fig, ax = plt.subplots()
-    res.plot.scatter(x='Volatility', y='Returns', c='Sharpe Ratio',
-                     cmap='viridis', edgecolors='black', ax=ax)
-    plt.xlabel('Volatility (Std. Deviation)')
-    plt.ylabel('Expected Returns')
-    plt.title('Efficient Frontier')
-
+def create_plot(res):
     # Find the minimum volatiliy and maximum sharpe portfolios
     min_volatility_idx = res['Volatility'].argmin()
     max_sharpe_idx = res['Sharpe Ratio'].argmax()
@@ -89,42 +103,70 @@ def plot_results(res):
     sharpe_portfolio = res.loc[max_sharpe_idx]
     min_variance_port = res.loc[min_volatility_idx]
 
-    plt.scatter(x=sharpe_portfolio['Volatility'], y=sharpe_portfolio['Returns'],
-                c='red', marker='*', s=400, label="Max. Sharpe")
-    plt.scatter(x=min_variance_port['Volatility'], y=min_variance_port['Returns'],
-                c='blue', marker='*', s=400, label="Min. Volatility")
-    plt.legend()
-    return fig
+    fig = px.scatter(res[["Returns", "Volatility", "Sharpe Ratio"]],
+                     x="Volatility", y="Returns",
+                     hover_data=("Returns", "Volatility"), template="seaborn",
+                     color="Sharpe Ratio", color_continuous_scale='viridis')
+
+    fig.update_layout(
+        xaxis_range=[min(res["Volatility"])-0.1, max(res["Volatility"])+0.1])
+    fig.update_layout(
+        yaxis_range=[min(res["Returns"])-0.1, max(res["Returns"])+0.1])
+
+    fig.update_traces(marker=dict(size=5,
+                                  line=dict(width=1,
+                                            color='DarkSlateGrey')),
+                      selector=dict(mode='markers'))
+
+    fig.add_trace(
+        go.Scatter(
+            x=[sharpe_portfolio['Volatility']],
+            y=[sharpe_portfolio['Returns']],
+            mode="markers+text",
+            showlegend=False, marker_symbol="star", marker_color="red",
+            marker_line_width=1, marker_size=20, text="Max. Sharpe ratio portfolio", textposition="middle left", textfont_size=14)
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=[min_variance_port['Volatility']],
+            y=[min_variance_port['Returns']],
+            mode="markers+text",
+            showlegend=False, marker_symbol="star", marker_color="blue",
+            marker_line_width=1, marker_size=20, text="Min. Volatility portfolio", textposition="middle left", textfont_size=14)
+    )
+
+    fig.update_layout(
+        title={
+            'text': "Simulated portfolios and the efficient frontier",
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'})
+
+    # Create a JSON representation of the graph
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
 
 
-# @app.route('/plot.png')
-# def plot_png():
-#     fig = plot_results()
-#     output = io.BytesIO()
-#     FigureCanvas(fig).print_png(output)
-#     return Response(output.getvalue(), mimetype='image/png')
-# Need to figure out correct structure:
-# Index.html = Input values -> render_template("plot page..")
-# def plot_page(input)
-# Simulate + plot tables + figure? Or something else?
-# "try again button" -> back to Index.html
+# @app.route('/')
+# def home():
+#     data = fetch_data()
+#     # cols = df_merged.columns
+#     res = simulate_protfolios(data, n_portfolios=1000)
+#     # Optimal portfolios:
+#     min_volatility_idx = res['Volatility'].argmin()
+#     max_sharpe_idx = res['Sharpe Ratio'].argmax()
+#     # use the min, max values to locate and create the two special portfolios
+#     sharpe_portfolio = res.loc[max_sharpe_idx]
+#     sharpe_html = sharpe_portfolio.to_frame(name="Sharpe portfolio")
 
-@app.route('/')
-def home():
-    data = fetch_data()
-    # cols = df_merged.columns
-    res = simulate_protfolios(data, n_portfolios=100)
-    # Optimal portfolios:
-    min_volatility_idx = res['Volatility'].argmin()
-    max_sharpe_idx = res['Sharpe Ratio'].argmax()
-    # use the min, max values to locate and create the two special portfolios
-    sharpe_portfolio = res.loc[max_sharpe_idx]
-    sharpe_html = sharpe_portfolio.to_frame(name="Sharpe portfolio")
+#     min_variance_port = res.loc[min_volatility_idx]
+#     var_html = min_variance_port.to_frame(name="Minimum volatility portfolio")
 
-    min_variance_port = res.loc[min_volatility_idx]
-    var_html = min_variance_port.to_frame(name="Minimum volatility portfolio")
-
-    return render_template("index.html",  tables=[var_html.T.append(sharpe_html.T).to_html(classes='data')], header="true")
+#     scatter_data = create_scatter_data_dict(res["Volatility"].round(
+#         3).tolist(), res["Returns"].round(3).tolist())
+# # render_template("index.html",  tables=[var_html.T.append(sharpe_html.T).to_html(classes='data')], header="true")
+#     return render_template("index.html", scatter_data=scatter_data)
 
 
 if __name__ == '__main__':
