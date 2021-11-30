@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 
@@ -15,13 +17,15 @@
             let Stock = document.getElementById('stock').value;
             let Period = document.getElementById('period').value;
             let Interval = document.getElementById('interval').value;
+            let tickers = document.getElementById('input_tickers').value;
+            alert("Tickers:" + tickers);
             //alert(Stock+Period+Interval);
             //return;
-            let response = await fetch("/callback/getStock");
+            let response = await fetch("/callback/getStock?tickers=" + tickers);
             if (response.ok) {
                 let chartJson = await response.json();
                 if (response.ok) {
-                    let response = await fetch("/callback/getTable");
+                    let response = await fetch("/callback/getTable?tickers=" + tickers);
                     let tableJson = await response.json();
                     Plotly.newPlot('chart_fig', chartJson, {});
                     Plotly.newPlot('chart_tbl', tableJson, {});
@@ -64,6 +68,9 @@
                     <option value="GOOGL">Google</option>
                 </select>
             </div>
+
+            <input type="text" id="input_tickers" placeholder="MSFT,AAPL,AMD">
+
             <div class="col"><b>for period</b></div>
 
             <div class="col">
@@ -128,7 +135,7 @@
     </div>
 
 
-    <script>callback();</script>
+    <!-- <script>callback();</script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
         crossorigin="anonymous"></script>

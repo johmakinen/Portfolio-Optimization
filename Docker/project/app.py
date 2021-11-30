@@ -11,6 +11,7 @@ import plotly.figure_factory as ff
 
 import datetime as dt
 import pandas_datareader as pdr
+from pandas_datareader._utils import RemoteDataError
 
 app = Flask(__name__)
 
@@ -22,14 +23,18 @@ def index():
 
 @app.route('/callback/<endpoint>')
 def cb(endpoint):
-
+    tickers = request.args.get("tickers").split(',')
+    if tickers == ['']:
+        tickers = ["TSLA", "AAPL", "MSFT"]
+    else:
+        tickers = [s.strip().upper() for s in tickers]
     if endpoint == "getStock":
-        data = fetch_data()
+        data, bad_tickers = fetch_data(tickers=tickers)
         results = simulate_portfolios(data)
         json_fig = show_results(results)[0]
         return json_fig
     elif endpoint == "getTable":
-        data = fetch_data()
+        data, bad_tickers = fetch_data(tickers=tickers)
         results = simulate_portfolios(data)
         json_tbl = show_results(results)[1]
         return json_tbl
@@ -42,17 +47,19 @@ def cb(endpoint):
 # end_date = "2021-11-28"
 
 
-def fetch_data(tickers=["TSLA", "AAPL", "MSFT"], start_date=dt.datetime.today()-dt.timedelta(weeks=25), end_date=dt.datetime.today()):
+def fetch_data(tickers=["TSLA", "AAPL", "MSFT"], start_date=dt.datetime.today().date()-dt.timedelta(weeks=50), end_date=dt.datetime.today()):
+    bad_tickers = []
+    res = pd.DataFrame(pd.date_range(
+        start=start_date, end=end_date), columns=["Date"])
     for i in range(len(tickers)):
-
-        if i == 0:
-            res = pdr.get_data_yahoo(tickers[i], start=start_date, end=end_date,)[
-                ["Adj Close"]].rename(columns={"Adj Close": tickers[i]}).reset_index()
-        else:
+        try:
             curr = pdr.get_data_yahoo(tickers[i], start=start_date, end=end_date,)[
                 ["Adj Close"]].rename(columns={"Adj Close": tickers[i]}).reset_index()
-            res = pd.merge(res, curr, on=['Date'], how='outer')
-    return res
+        except RemoteDataError:
+            bad_tickers.append(tickers[i])
+            continue
+        res = pd.merge(res, curr, on=['Date'], how='outer')
+    return res.dropna(axis=0), bad_tickers
 
 
 def simulate_portfolios(df, n_portfolios=10000):
