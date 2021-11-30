@@ -14,13 +14,7 @@
 
     <script>
         async function callback() {
-            let Stock = document.getElementById('stock').value;
-            let Period = document.getElementById('period').value;
-            let Interval = document.getElementById('interval').value;
             let tickers = document.getElementById('input_tickers').value;
-            alert("Tickers:" + tickers);
-            //alert(Stock+Period+Interval);
-            //return;
             let response = await fetch("/callback/getStock?tickers=" + tickers);
             if (response.ok) {
                 let chartJson = await response.json();
@@ -37,16 +31,6 @@
                 alert("HTTP-Error: " + response.status + " on getStock");
             }
         }
-        function info(json) {
-            let name = document.getElementById('companyName');
-            name.innerHTML = json.shortName;
-            name = document.getElementById('symbol');
-            name.innerHTML = json.symbol;
-            name = document.getElementById('dayHigh');
-            name.innerHTML = json.dayHigh;
-            name = document.getElementById('dayLow');
-            name.innerHTML = json.dayLow;
-        }
     </script>
 </head>
 
@@ -59,59 +43,16 @@
 
         </div>
         <div class="row">
-            <div class="col"><b>Select stock</b></div>
-            <div class="col">
-                <select id="stock" class="form-select" aria-label="Select" )>
-                    <option selected value="MSFT">Microsoft</option>
-                    <option value="FB">Facebook</option>
-                    <option value=AAPL>Apple</option>
-                    <option value="GOOGL">Google</option>
-                </select>
-            </div>
-
+            <div class="col"><b>Input desired assets</b></div>
             <input type="text" id="input_tickers" placeholder="MSFT,AAPL,AMD">
-
-            <div class="col"><b>for period</b></div>
-
+        </div>
+        <div class="row">
             <div class="col">
-                <select id="period" class="form-select" aria-label="Select" )>
-                    <option selected value="1d">1 day</option>
-                    <option value="5d">5 days</option>
-                    <option value="1mo">1 month</option>
-                    <option value="3mo">3 months</option>
-                    <option value="6mo">6 months</option>
-                    <option value="1y">1 year</option>
-                    <option value="2y">2 years</option>
-                    <option value="5y">5 years</option>
-                    <option value="10y">10 years</option>
-                    <option value="ytd">Year to date</option>
-                    <option value="max">Max</option>
-                </select>
+                <button type="button" class="btn btn-primary" onclick="callback()" style="float: center;">Fetch
+                    stock</button>
             </div>
-            <div class="col"><b>Interval</b></div>
-
-            <div class="col">
-                <select id="interval" class="form-select" aria-label="Select" )>
-                    <option selected value="1m">1 minute</option>
-                    <option value="2m">2 minutes</option>
-                    <option value="5m">5 minutes</option>
-                    <option value="15m">15 minutes</option>
-                    <option value="30m">30 minutes</option>
-                    <option value="60m">60 minutes</option>
-                    <option value="90m">90 minutes</option>
-                    <option value="1d">1 day</option>
-                    <option value="5d">5 days</option>
-                    <option value="1w">1 week</option>
-                    <option value="1m">1 month</option>
-                    <option value="3m">3 months</option>
-
-                </select>
-            </div>
-            <div class="col">
-                <button type="button" class="btn btn-primary" onclick="callback()">Fetch stock</button>
-            </div>
-            <div class="w-100" style="padding:10px;text-align:right;font-size: small;"><i>Note: not all intervals are
-                    valid for all periods</i></div>
+            <div class="w-100" style="padding:10px;text-align:right;font-size: small;"><i>Note: If an asset can't be
+                    found it will be excluded. Assets in the portfolio can be seen in the table.</i></div>
 
             <div class="col-12">
                 <div id="chart_fig" class="chart" style="height: 700px;border: 1px solid; 
@@ -125,9 +66,7 @@
                 </div>
             </div>
             <div class="col-12" style="font-size:smaller;padding:10px;text-align: right;">
-                <i>The data is, to the best of our knowledge, correct but cannot be guarenteed to be so</i>
-                <br />
-                <i>This site is for educational and demonstation purposes, only</i>
+                <i>The data is collected from Yahoo Finance</i>
             </div>
 
         </div>

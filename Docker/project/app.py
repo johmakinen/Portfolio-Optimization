@@ -103,7 +103,7 @@ def simulate_portfolios(df, n_portfolios=10000):
 
 
 def show_results(res):
-
+    ###########################################
     min_volatility_idx = res['Volatility'].argmin()
     max_sharpe_idx = res['Sharpe Ratio'].argmax()
 
@@ -112,12 +112,14 @@ def show_results(res):
     min_variance_port = res.loc[min_volatility_idx]
 
     min_variance_port_frame = min_variance_port.to_frame(
-        name="Minimum volatility portfolio")
+        name="Min. volatility portfolio")
     sharpe_portfolio_frame = sharpe_portfolio.to_frame(
-        name="Maximum Sharpe portfolio")
+        name="Max. Sharpe portfolio")
     opt_portfolios = min_variance_port_frame.T.append(sharpe_portfolio_frame.T)
 
     opt_portfolios = min_variance_port_frame.T.append(sharpe_portfolio_frame.T)
+    # This is bad code and should be refactored
+    ###########################################
     # TABLE
     fig_tbl = ff.create_table(opt_portfolios.round(
         2).reset_index().rename(columns={'index': "Portfolio Type"}))
@@ -168,26 +170,6 @@ def show_results(res):
     graphJSON_tbl = json.dumps(fig_tbl, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON_fig, graphJSON_tbl
 
-
-# @app.route('/')
-# def home():
-#     data = fetch_data()
-#     # cols = df_merged.columns
-#     res = simulate_protfolios(data, n_portfolios=1000)
-#     # Optimal portfolios:
-#     min_volatility_idx = res['Volatility'].argmin()
-#     max_sharpe_idx = res['Sharpe Ratio'].argmax()
-#     # use the min, max values to locate and create the two special portfolios
-#     sharpe_portfolio = res.loc[max_sharpe_idx]
-#     sharpe_html = sharpe_portfolio.to_frame(name="Sharpe portfolio")
-
-#     min_variance_port = res.loc[min_volatility_idx]
-#     var_html = min_variance_port.to_frame(name="Minimum volatility portfolio")
-
-#     scatter_data = create_scatter_data_dict(res["Volatility"].round(
-#         3).tolist(), res["Returns"].round(3).tolist())
-# # render_template("index.html",  tables=[var_html.T.append(sharpe_html.T).to_html(classes='data')], header="true")
-#     return render_template("index.html", scatter_data=scatter_data)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0')
