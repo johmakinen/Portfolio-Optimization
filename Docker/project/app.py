@@ -79,7 +79,8 @@ def simulate_portfolios(df, n_portfolios=10000):
     np.random.seed(101)
     # set the number of combinations for imaginary portfolios
     n_assets = len(df.columns)-1
-    risk_free_rate = 0.01482  # 10 year US bond yield
+    risk_free_rate = 0.0021  # 1yr US T-Bill
+    # https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yieldYear&year=2021
 
     for i in range(n_portfolios):
         w = np.random.random(n_assets)
@@ -112,7 +113,7 @@ def show_results(res):
     min_variance_port = res.loc[min_volatility_idx]
 
     min_variance_port_frame = min_variance_port.to_frame(
-        name="Min. volatility portfolio")
+        name="Min. Volatility portfolio")
     sharpe_portfolio_frame = sharpe_portfolio.to_frame(
         name="Max. Sharpe portfolio")
     opt_portfolios = min_variance_port_frame.T.append(sharpe_portfolio_frame.T)
