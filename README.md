@@ -1,13 +1,49 @@
 # Portfolio-Optimization
-The objective is to optimize a portfolio of given assets using Modern Portfolio Theory (MPT).
 
-![example_fig](Testing%20and%20notebooks/example_fig_2.png)
+#### -- Project Status: [Completed for now]
 
-### Next steps
+## Project Objective
+The purpose of this project is to create a simple interactive tool to optimize the asset allocation of a stock portfolio. This results in two portfolios:
+* The minimum volatility portfolio
+* the maximum Sharpe ratio portfolio.
 
-- [x] Optimize asset portfolio using Monte Carlo sampling with uniform A priori distribution
-- [x] Automate data retrieval
-- [x] Dockerize + gunicorn
-- [ ] Find a way to deploy our pipeline to the public (Heroku, AWS,...)
-- [ ] Write extensive README with the theory behind the optimization
-- [ ] Time series prediction -> Robust portfolio optimization using future scenarios (?)
+<p align="center">
+  <img src="Testing%20and%20notebooks/example_fig_2.png" alt="example_fig" width="800"/>
+</p>
+
+### Methods Used
+* Modern Portfolio Theory (MPT)
+* Markowitz model
+* Monte Carlo method
+
+### Technologies
+* Python
+* Pandas, jupyter
+* Flask
+* HTML
+* JavaScript
+* Gunicorn
+
+## Project Description
+
+The data used in this project is retrieved from Yahoo Finance using pandas datareader. The data consists of the historical adjusted closing prices for the given assets. From this, we can compute the average returns and the volatilities (standard deviation of returns) for portfolios including the assets. We then use the Monte Carlo method to simulate portfolios with various weights for their assets. From these portfolios, the optimals are found by minimizing the volatility and maximizing the returns.
+
+The interactive tool is an easy way of trying out what happens if you include different assets in your stock portfolio. The tool plots all the simulated portfolios in the volatility-returns -space. The Sharpe ratio describes the average return earned in excess of the risk-free rate per unit of volatility. A high Sharpe ratio is usually preferred over a low. 
+
+The challenges in this project were more concentrated on the technical aspect of implementation. I had never done anything with Docker, Flask, HTML, Javascript or Gunicorn, and thus this was a big learning experience on that front. There are several improvements to be made if the tool is developed further. Mainly the container setup having a separate back and frontend. The containers could also be deployed on for example Heroku for free. The model itself was quite straightforward to implement.
+
+When using the tool you must remember that there are always risks associated with investments. The model implemented in this project will never be 100% certain. The significant drawback of the model is the dependency on historical data. Looking at the history of an asset is not a guarantee of the future of the asset. In the future, we could develop multiple time series predictions for the assets and use robust portfolio optimization to deal with the uncertain future.
+
+## Needs of this project
+
+- frontend developers
+- data processing/cleaning
+- statistical modeling
+- writeup/reporting
+
+## Getting Started
+1. Install docker ([Docker.com](https://www.docker.com/products/docker-desktop))
+     - If you are using Windows like me, you're going to have to jump through some [loops](https://dockerwebdev.com/tutorials/install-docker/).
+2. Clone this repo (for help see this [tutorial](https://help.github.com/articles/cloning-a-repository/)).
+3. Navigate to the root folder
+4. Run ```docker-compose up --build```
