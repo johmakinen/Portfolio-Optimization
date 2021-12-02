@@ -37,19 +37,23 @@
 <body>
     <div class="container">
         <div class="row">
-            <div class="col text-light bg-dark" style="margin:20px 0px 20px 0px">
-                <h1 style="padding:20px 0px 20px 0px">Optimal portfolio tool</h1>
-                <p>The tool finds the best weights for each of the assets you want to include in your portfolio.</p>
-                <p>E.g. If the weight of an asset is 0.2, then 20% of the available capital shoul be allocated to that
-                    asset.</p>
+            <div class="col text-light bg-dark" style="margin:20px 0px 0px 0px">
+                <h1 style="padding:20px 0px 20px 0px"><u>Optimal portfolio tool</u></h1>
             </div>
-
+            <div class="row text-light bg-dark" style="margin:0px 0px 20px 0px">
+                <p>The tool finds the best weights for each of the assets you want to include in your portfolio.</p>
+                <p> E.g. If the weight of an asset is 0.2, then 20% of the available capital should be allocated to that
+                    asset.
+                </p>
+            </div>
         </div>
         <div class="row">
-            <div class="col"><b>Input desired assets</b></div>
-            <input type="text" id="input_tickers" placeholder="TSLA,AAPL,MSFT">
+            <div class="col" style="font-size : 25px; margin-bottom: 2px; text-align: center;"><b>Input desired
+                    assets</b></div>
+            <input type="text" style="margin-bottom: 5px;font-size : 20px;" id="input_tickers"
+                placeholder="TSLA,AAPL,MSFT">
             <button type="button" class="btn btn-primary" onclick="callback()"
-                style="padding:2px 2px 2px 2px;">Optimize!</button>
+                style="font-size : 20px; padding: 3px 3px;">Optimize!</button>
         </div>
         <div class="row">
             <!-- <div class="col">
