@@ -1,7 +1,7 @@
 # Portfolio-Optimization
 The objective is to optimize a portfolio of given assets using Modern Portfolio Theory (MPT).
 
-![example_fig_1](Testing%20and%20notebooks/example_fig_1.png)
+![example_fig](Testing%20and%20notebooks/example_fig_2.png)
 
 ### Next steps
 
