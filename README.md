@@ -36,7 +36,7 @@ When using the tool you must remember that there are always risks associated wit
 
 ## Needs of this project
 
-- frontend developers
+- frontend developing
 - data processing/cleaning
 - statistical modeling
 - writeup/reporting
