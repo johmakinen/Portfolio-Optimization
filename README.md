@@ -7,6 +7,8 @@ The purpose of this project is to create a simple interactive tool to optimize t
 * The minimum volatility portfolio
 * the maximum Sharpe ratio portfolio.
 
+The tool is deployed using Google Cloud Platform ([Link here](https://portfolio-optimization-mhsj544yua-lz.a.run.app))
+
 <p align="center">
   <img src="Testing%20and%20notebooks/example_fig_2.png" alt="example_fig" width="800"/>
 </p>
@@ -23,6 +25,7 @@ The purpose of this project is to create a simple interactive tool to optimize t
 * HTML
 * JavaScript
 * Gunicorn
+* Google Cloud Platform
 
 ## Project Description
 
@@ -36,14 +39,8 @@ When using the tool you must remember that there are always risks associated wit
 
 ## Needs of this project
 
-- frontend developing
-- data processing/cleaning
-- statistical modeling
-- writeup/reporting
-
-## Getting Started
-1. Install docker ([Docker.com](https://www.docker.com/products/docker-desktop))
-     - If you are using Windows like me, you're going to have to jump through some [loops](https://dockerwebdev.com/tutorials/install-docker/).
-2. Clone this repo (for help see this [tutorial](https://help.github.com/articles/cloning-a-repository/)).
-3. Navigate to the root folder
-4. Run ```docker-compose up --build```
+- Frontend developing
+- Data processing/cleaning
+- Statistical modeling
+- Writeup/reporting
+- Model deployment
