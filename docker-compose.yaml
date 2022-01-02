@@ -4,8 +4,13 @@ services:
   flask_app:
     container_name: flask_app
     build: ./flask_app
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./flask_app:/flask_app
-    command: gunicorn -w 2 --threads 4 -b 0.0.0.0:8000 wsgi:app
+    # ports:
+
+    #   - "8000:8000"
+
+    # volumes:
+
+
+
+    #   - ./flask_app:/flask_app
+    # command: gunicorn -w 1 --threads 4 -b 0.0.0.0:8000 wsgi:app
