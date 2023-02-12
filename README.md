@@ -2,6 +2,8 @@
 
 #### -- Project Status: [Completed for now]
 
+#### NOTE: Yahoo Finance updated their API which broke this tool's pandas_datareader library (Dec. 2022)
+
 ## Project Objective
 The purpose of this project is to create a simple interactive tool to optimize the asset allocation of a stock portfolio. This results in two portfolios:
 * The minimum volatility portfolio
